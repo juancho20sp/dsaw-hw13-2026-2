@@ -1,0 +1,30 @@
+{
+  "name": "HW13 — Full-Stack Integration + Auth",
+  "homeworkNumber": 13,
+  "structure": {
+    "maxPoints": 20,
+    "requiredFiles": [
+      { "path": "deployment.txt", "description": "Vercel URL for the frontend (API URL can be in README)", "points": 10 }
+    ],
+    "requiredFolders": []
+  },
+  "quality": {
+    "maxPoints": 20,
+    "checks": ["eslint"]
+  },
+  "deployment": {
+    "maxPoints": 20,
+    "type": "vercel"
+  },
+  "acceptance": {
+    "maxPoints": 40,
+    "sourcePaths": ["src", "routes", "models"],
+    "criteria": [
+      "JWT authentication is implemented: register and login endpoints exist, and successful login returns a token stored in localStorage or a cookie",
+      "At least one protected API endpoint requires a valid JWT — requests without a valid token receive a 401 response",
+      "Both user roles defined in the project constraints are implemented: the frontend shows meaningfully different UI elements, not just a label change",
+      "No mock data files are used — all data comes from real API calls to the Express backend connected to MongoDB",
+      "CORS is configured on the backend to allow requests from the frontend's domain"
+    ]
+  }
+}
