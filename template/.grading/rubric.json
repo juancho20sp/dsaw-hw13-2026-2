@@ -1,0 +1,26 @@
+{
+  "name": "Tarea base (sobreescribir con rubric.json del homework específico)",
+  "homeworkNumber": 0,
+  "structure": {
+    "maxPoints": 20,
+    "requiredFiles": [
+      { "path": "index.html", "description": "Archivo HTML principal", "points": 20 }
+    ],
+    "requiredFolders": []
+  },
+  "quality": {
+    "maxPoints": 20,
+    "checks": ["htmlhint"]
+  },
+  "deployment": {
+    "maxPoints": 20,
+    "type": "github-pages"
+  },
+  "acceptance": {
+    "maxPoints": 40,
+    "sourcePaths": [],
+    "criteria": [
+      "El archivo index.html existe y tiene contenido HTML válido"
+    ]
+  }
+}

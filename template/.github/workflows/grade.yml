@@ -1,0 +1,85 @@
+name: Autograding DSAW
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  checks: write
+
+jobs:
+  grade:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout student code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install grading dependencies
+        working-directory: .grading
+        run: npm install
+
+      - name: Check code structure
+        id: structure
+        working-directory: .grading
+        run: node check-structure.js
+        env:
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+
+      - name: Check code quality
+        id: quality
+        working-directory: .grading
+        run: node check-quality.js
+        continue-on-error: true
+        env:
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+
+      - name: Check deployment
+        id: deployment
+        working-directory: .grading
+        run: node check-deployment.js
+        continue-on-error: true
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+
+      - name: Grade acceptance criteria
+        id: criteria
+        working-directory: .grading
+        run: node grade-criteria.js
+        continue-on-error: true
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+
+      - name: Generate feedback report
+        working-directory: .grading
+        run: node generate-feedback.js
+        env:
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          STRUCTURE_SCORE: ${{ steps.structure.outputs.score }}
+          STRUCTURE_FEEDBACK: ${{ steps.structure.outputs.feedback }}
+          QUALITY_SCORE: ${{ steps.quality.outputs.score }}
+          QUALITY_FEEDBACK: ${{ steps.quality.outputs.feedback }}
+          DEPLOYMENT_SCORE: ${{ steps.deployment.outputs.score }}
+          DEPLOYMENT_FEEDBACK: ${{ steps.deployment.outputs.feedback }}
+          CRITERIA_SCORE: ${{ steps.criteria.outputs.score }}
+          CRITERIA_FEEDBACK: ${{ steps.criteria.outputs.feedback }}
+
+      - name: Commit feedback to student repo
+        run: |
+          git config --local user.email "grader@dsaw-unisabana.edu.co"
+          git config --local user.name "DSAW Grader"
+          git add FEEDBACK.md
+          git diff --staged --quiet || git commit -m "📊 Retroalimentación automática — $(date '+%Y-%m-%d %H:%M')"
+          git push
